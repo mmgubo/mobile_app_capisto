@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from 'next/image'
 import { Building2 } from "lucide-react"
 
 export function Footer() {
@@ -8,10 +9,12 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-4">
           <div className="md:col-span-1">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-                <Building2 className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-semibold text-foreground">Capitec Bank</span>
+                <Image
+                    src="/images/logo.png"
+                    alt="Company Logo"
+                    width={150} // Desired width in pixels
+                    height={50} // Desired height in pixels
+                />
             </Link>
             <p className="mt-4 text-sm text-muted-foreground">
              Find ways to bank better. Schedule appointments with our expert advisors.

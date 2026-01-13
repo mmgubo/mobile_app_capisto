@@ -31,7 +31,7 @@ export function HeroSection() {
 
             <div className="mt-12 grid grid-cols-3 gap-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-primary">15M+</p>
+                <p className="text-3xl font-bold text-primary">20M+</p>
                 <p className="mt-1 text-sm text-muted-foreground">Happy Clients</p>
               </div>
               <div className="text-center">
