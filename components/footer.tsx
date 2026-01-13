@@ -11,10 +11,10 @@ export function Footer() {
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
                 <Building2 className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-semibold text-foreground">SecureBank</span>
+              <span className="text-xl font-semibold text-foreground">Capitec Bank</span>
             </Link>
             <p className="mt-4 text-sm text-muted-foreground">
-              Your trusted partner for all banking needs. Schedule appointments with our expert advisors.
+             Find ways to bank better. Schedule appointments with our expert advisors.
             </p>
           </div>
 
@@ -23,22 +23,32 @@ export function Footer() {
             <ul className="mt-4 space-y-2">
               <li>
                 <Link href="/services" className="text-sm text-muted-foreground hover:text-foreground">
-                  Account Opening
+                  Transact
                 </Link>
               </li>
               <li>
                 <Link href="/services" className="text-sm text-muted-foreground hover:text-foreground">
-                  Loan Services
+                  Save
                 </Link>
               </li>
               <li>
                 <Link href="/services" className="text-sm text-muted-foreground hover:text-foreground">
-                  Investment Advisory
+                  Insure
                 </Link>
               </li>
               <li>
                 <Link href="/services" className="text-sm text-muted-foreground hover:text-foreground">
-                  Business Banking
+                  Business Enquiry
+                </Link>
+              </li>
+               <li>
+                <Link href="/services" className="text-sm text-muted-foreground hover:text-foreground">
+                  Credit
+                </Link>
+              </li>
+               <li>
+                <Link href="/services" className="text-sm text-muted-foreground hover:text-foreground">
+                  Connect
                 </Link>
               </li>
             </ul>
@@ -80,12 +90,12 @@ export function Footer() {
               </li>
               <li>
                 <Link href="#" className="text-sm text-muted-foreground hover:text-foreground">
-                  Terms of Service
+                  Conflict of interest policy
                 </Link>
               </li>
               <li>
                 <Link href="#" className="text-sm text-muted-foreground hover:text-foreground">
-                  Security
+                  Code of Banking Practice
                 </Link>
               </li>
             </ul>
@@ -94,7 +104,7 @@ export function Footer() {
 
         <div className="mt-8 border-t border-border pt-8">
           <p className="text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} SecureBank. All rights reserved. Member FDIC.
+            © {new Date().getFullYear()} Capitec Bank is an authorised financial services provider (FSP 46669) and registered credit provider (NCRCP13).
           </p>
         </div>
       </div>

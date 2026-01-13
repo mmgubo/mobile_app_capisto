@@ -8,10 +8,10 @@ import { Wallet, Home, TrendingUp, Briefcase, PiggyBank, HelpCircle, Clock, Arro
 const services = [
   {
     icon: Wallet,
-    title: "Account Opening",
+    title: "Transact",
     description:
       "Open a new checking, savings, or business account with personalized guidance from our banking specialists.",
-    duration: "30 min",
+    duration: "10 min",
     details: [
       "Personal checking and savings accounts",
       "Business and commercial accounts",
@@ -21,9 +21,9 @@ const services = [
   },
   {
     icon: Home,
-    title: "Loan Consultation",
+    title: "Save",
     description: "Discuss mortgage, auto, or personal loan options tailored to your specific financial situation.",
-    duration: "45 min",
+    duration: "15 min",
     details: [
       "Home mortgages and refinancing",
       "Auto loans and leasing",
@@ -33,9 +33,9 @@ const services = [
   },
   {
     icon: TrendingUp,
-    title: "Investment Advisory",
+    title: "Insure",
     description: "Meet with our certified wealth management advisors for comprehensive portfolio guidance.",
-    duration: "60 min",
+    duration: "15 min",
     details: [
       "Portfolio analysis and management",
       "Retirement planning (401k, IRA)",
@@ -45,9 +45,9 @@ const services = [
   },
   {
     icon: Briefcase,
-    title: "Business Banking",
+    title: "Business Enquiry",
     description: "Commercial banking solutions designed to help your business grow and succeed.",
-    duration: "45 min",
+    duration: "20 min",
     details: [
       "Business account setup",
       "Merchant services",
@@ -57,9 +57,9 @@ const services = [
   },
   {
     icon: PiggyBank,
-    title: "Financial Planning",
+    title: "Credit",
     description: "Comprehensive financial planning sessions to help you achieve your long-term goals.",
-    duration: "60 min",
+    duration: "15 min",
     details: [
       "Budgeting and savings strategies",
       "Debt management",
@@ -69,9 +69,9 @@ const services = [
   },
   {
     icon: HelpCircle,
-    title: "General Inquiry",
+    title: "Connect",
     description: "Have questions about your accounts or our banking services? Our team is here to help.",
-    duration: "20 min",
+    duration: "10 min",
     details: [
       "Account questions and support",
       "Online banking assistance",

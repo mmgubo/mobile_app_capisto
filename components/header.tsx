@@ -6,11 +6,14 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Building2, Menu, User, LogOut, Calendar, Settings } from "lucide-react"
-import { useState } from "react"
+import { Building2, Menu, User, LogOut, Calendar, Settings, CalendarClock, Clock, CheckCircle2 } from "lucide-react"
+import { type Appointment, demoAppointments } from "@/lib/store"
+import { useState, useEffect } from "react"
+import { Badge } from "@/components/ui/badge"
 
 interface HeaderProps {
   user?: { name: string; email: string; role: "customer" | "admin" } | null
@@ -19,6 +22,45 @@ interface HeaderProps {
 
 export function Header({ user, onLogout }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [appointments, setAppointments] = useState<Appointment[]>([])
+
+   useEffect(() => {
+        // Load appointments from localStorage or use demo data
+        const stored = localStorage.getItem("appointments")
+        if (stored) {
+        setAppointments(JSON.parse(stored))
+        } else {
+        setAppointments(demoAppointments)
+        }
+    }, [])
+
+    const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const activeAppointments = appointments.filter((apt) => {
+    const aptDate = new Date(apt.date)
+    return aptDate >= today && apt.status !== "cancelled" && apt.status !== "completed"
+  })
+
+  const pastAppointments = appointments.filter((apt) => {
+    const aptDate = new Date(apt.date)
+    return aptDate < today || apt.status === "completed"
+  })
+
+  const getStatusColor = (status: Appointment["status"]) => {
+    switch (status) {
+      case "confirmed":
+        return "bg-green-100 text-green-700"
+      case "pending":
+        return "bg-yellow-100 text-yellow-700"
+      case "completed":
+        return "bg-blue-100 text-blue-700"
+      case "cancelled":
+        return "bg-red-100 text-red-700"
+      default:
+        return "bg-muted text-muted-foreground"
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
@@ -27,7 +69,7 @@ export function Header({ user, onLogout }: HeaderProps) {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
             <Building2 className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="text-xl font-semibold text-foreground">SecureBank</span>
+          <span className="text-xl font-semibold text-foreground">Capitec Bank</span>
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
@@ -46,6 +88,81 @@ export function Header({ user, onLogout }: HeaderProps) {
           >
             Services
           </Link>
+           <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+                <CalendarClock className="h-4 w-4" />
+                View Appointments
+                {activeAppointments.length > 0 && (
+                  <Badge variant="secondary" className="ml-1 h-5 min-w-5 px-1.5 text-xs">
+                    {activeAppointments.length}
+                  </Badge>
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="w-80">
+              {/* Active Appointments */}
+              <DropdownMenuLabel className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-primary" />
+                Upcoming Appointments
+              </DropdownMenuLabel>
+              {activeAppointments.length > 0 ? (
+                activeAppointments.slice(0, 3).map((apt) => (
+                  <DropdownMenuItem key={apt.id} asChild>
+                    <Link href="/appointments" className="cursor-pointer flex-col items-start gap-1 py-2">
+                      <div className="flex w-full items-center justify-between">
+                        <span className="font-medium">{apt.service}</span>
+                        <Badge className={`text-xs ${getStatusColor(apt.status)}`}>{apt.status}</Badge>
+                      </div>
+                      <div className="flex w-full items-center gap-2 text-xs text-muted-foreground">
+                        <span>{new Date(apt.date).toLocaleDateString()}</span>
+                        <span>•</span>
+                        <span>{apt.time}</span>
+                        <span>•</span>
+                        <span>{apt.branch}</span>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                ))
+              ) : (
+                <div className="px-2 py-3 text-center text-sm text-muted-foreground">No upcoming appointments</div>
+              )}
+
+              <DropdownMenuSeparator />
+
+              {/* Past Appointments */}
+              <DropdownMenuLabel className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                Past Appointments
+              </DropdownMenuLabel>
+              {pastAppointments.length > 0 ? (
+                pastAppointments.slice(0, 2).map((apt) => (
+                  <DropdownMenuItem key={apt.id} asChild>
+                    <Link href="/appointments" className="cursor-pointer flex-col items-start gap-1 py-2 opacity-70">
+                      <div className="flex w-full items-center justify-between">
+                        <span className="font-medium">{apt.service}</span>
+                        <Badge className={`text-xs ${getStatusColor(apt.status)}`}>{apt.status}</Badge>
+                      </div>
+                      <div className="flex w-full items-center gap-2 text-xs text-muted-foreground">
+                        <span>{new Date(apt.date).toLocaleDateString()}</span>
+                        <span>•</span>
+                        <span>{apt.time}</span>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                ))
+              ) : (
+                <div className="px-2 py-3 text-center text-sm text-muted-foreground">No past appointments</div>
+              )}
+
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/appointments" className="cursor-pointer justify-center font-medium text-primary">
+                  View All Appointments
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </nav>
 
         <div className="flex items-center gap-3">

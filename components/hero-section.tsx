@@ -9,7 +9,7 @@ export function HeroSection() {
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
             <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Banking Made <span className="text-primary">Personal</span>
+             <span className="text-primary"> Bank on Better </span>
             </h1>
             <p className="mt-6 text-pretty text-lg leading-relaxed text-muted-foreground">
               Schedule appointments with our expert banking professionals. Whether you need help with accounts, loans,
@@ -31,11 +31,11 @@ export function HeroSection() {
 
             <div className="mt-12 grid grid-cols-3 gap-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-primary">50K+</p>
+                <p className="text-3xl font-bold text-primary">15M+</p>
                 <p className="mt-1 text-sm text-muted-foreground">Happy Clients</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold text-primary">15+</p>
+                <p className="text-3xl font-bold text-primary">25+</p>
                 <p className="mt-1 text-sm text-muted-foreground">Years Experience</p>
               </div>
               <div className="text-center">

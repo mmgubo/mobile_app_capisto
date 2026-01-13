@@ -6,39 +6,39 @@ import { Wallet, Home, TrendingUp, Briefcase, PiggyBank, HelpCircle, ArrowRight 
 const services = [
   {
     icon: Wallet,
-    title: "Account Opening",
+    title: "Transact",
     description: "Open a new checking, savings, or business account with personalized guidance.",
-    duration: "30 min",
+    duration: "10 min",
   },
   {
     icon: Home,
-    title: "Loan Consultation",
+    title: "Save",
     description: "Discuss mortgage, auto, or personal loan options tailored to your needs.",
-    duration: "45 min",
+    duration: "15 min",
   },
   {
     icon: TrendingUp,
-    title: "Investment Advisory",
+    title: "Insure",
     description: "Meet with our wealth management advisors for portfolio guidance.",
-    duration: "60 min",
+    duration: "15 min",
   },
   {
     icon: Briefcase,
-    title: "Business Banking",
+    title: "Business Enquiry",
     description: "Commercial banking solutions and business account services.",
-    duration: "45 min",
+    duration: "20 min",
   },
   {
     icon: PiggyBank,
-    title: "Financial Planning",
+    title: "Credit",
     description: "Comprehensive financial planning for your future goals.",
-    duration: "60 min",
+    duration: "15 min",
   },
   {
     icon: HelpCircle,
-    title: "General Inquiry",
+    title: "Connect",
     description: "Questions about accounts or banking services? We're here to help.",
-    duration: "20 min",
+    duration: "10 min",
   },
 ]
 

@@ -8,12 +8,12 @@ import { services } from "@/lib/store"
 import { Wallet, Home, TrendingUp, Briefcase, PiggyBank, HelpCircle, Check } from "lucide-react"
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  "account-opening": Wallet,
-  "loan-consultation": Home,
-  "investment-advisory": TrendingUp,
-  "business-banking": Briefcase,
-  "financial-planning": PiggyBank,
-  "general-inquiry": HelpCircle,
+  "transact": Wallet,
+  "save": Home,
+  "insure": TrendingUp,
+  "business-enquiry": Briefcase,
+  "credit": PiggyBank,
+  "connect": HelpCircle,
 }
 
 interface ServiceSelectorProps {
