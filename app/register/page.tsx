@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from 'next/image'
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -40,6 +41,7 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     const result = await register(name, email, password)
+    console.log("Registration result:", result)
 
     if (result.success) {
       router.push("/dashboard")
@@ -52,10 +54,12 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-secondary/50 to-background px-4 py-8">
       <Link href="/" className="mb-8 flex items-center gap-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-          <Building2 className="h-6 w-6 text-primary-foreground" />
-        </div>
-        <span className="text-2xl font-semibold text-foreground">SecureBank</span>
+          <Image
+              src="/images/logo.png"
+              alt="Company Logo"
+              width={150} // Desired width in pixels
+              height={50} // Desired height in pixels
+          />
       </Link>
 
       <Card className="w-full max-w-md">

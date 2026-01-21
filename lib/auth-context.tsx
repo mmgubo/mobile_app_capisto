@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { User, Appointment } from "@/lib/store"
 import { demoAppointments } from "@/lib/store"
+import { customerApi, type ApiCustomer } from "./api"
 
 interface AuthContextType {
   user: User | null
@@ -19,7 +20,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 // Demo users for testing
 const demoUsers: Array<User & { password: string }> = [
   { id: "user-1", email: "john@example.com", name: "John Smith", role: "customer", password: "password" },
-  { id: "admin-1", email: "admin@securebank.com", name: "Admin User", role: "admin", password: "admin123" },
+  { id: "admin-1", email: "admin@capitecbank.com", name: "Admin User", role: "admin", password: "admin123" },
 ]
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -29,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Check for stored session on mount
   useEffect(() => {
-    const storedUser = sessionStorage.getItem("securebank-user")
+    const storedUser = sessionStorage.getItem("capitecbank-user")
     if (storedUser) {
       setUser(JSON.parse(storedUser))
     }
@@ -43,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (foundUser) {
       const { password: _, ...userWithoutPassword } = foundUser
       setUser(userWithoutPassword)
-      sessionStorage.setItem("securebank-user", JSON.stringify(userWithoutPassword))
+      sessionStorage.setItem("capitecbank-user", JSON.stringify(userWithoutPassword))
       return { success: true }
     }
     return { success: false, error: "Invalid email or password" }
@@ -54,31 +55,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string,
     password: string,
   ): Promise<{ success: boolean; error?: string }> => {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 800))
+    debugger
+    try {
+      const { data: existingCustomers } = await customerApi.getAll()
+      if (existingCustomers?.some((c) => c.email === email)) {
+        return { success: false, error: "An account with this email already exists" }
+      }
 
-    if (users.some((u) => u.email === email)) {
-      return { success: false, error: "An account with this email already exists" }
+      const { data: customerIdentity, error: createError } = await customerApi.create({ name, email })
+      if (createError || !customerIdentity) {
+        return { success: false, error: createError || "Failed to create account" }
+      }
+
+      const { data: newCustomer, error: err } = await customerApi.getById(customerIdentity)
+      if (err || !newCustomer) {
+        return { success: false, error: err || "Failed to get the client details" }
+      }
+
+      const loggedInUser: User = {
+        id: newCustomer.id,
+        email: newCustomer.email,
+        name: newCustomer.name,
+        role: "customer",
+      }
+      setUser(loggedInUser)
+      sessionStorage.setItem("capitecbank-user", JSON.stringify(loggedInUser))
+      return { success: true  }
+    } catch {
+      return { success: false, error: "Network error" }
     }
-
-    const newUser: User & { password: string } = {
-      id: `user-${Date.now()}`,
-      email,
-      name,
-      role: "customer",
-      password,
-    }
-
-    setUsers([...users, newUser])
-    const { password: _, ...userWithoutPassword } = newUser
-    setUser(userWithoutPassword)
-    sessionStorage.setItem("securebank-user", JSON.stringify(userWithoutPassword))
-    return { success: true }
   }
 
   const logout = () => {
     setUser(null)
-    sessionStorage.removeItem("securebank-user")
+    sessionStorage.removeItem("capitecbank-user")
   }
 
   const addAppointment = (appointment: Omit<Appointment, "id" | "createdAt">) => {

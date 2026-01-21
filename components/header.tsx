@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Building2, Menu, User, LogOut, Calendar, Settings, CalendarClock, Clock, CheckCircle2 } from "lucide-react"
+import { Menu, User, LogOut, Calendar, Settings, CalendarClock, Clock, CheckCircle2 } from "lucide-react"
 import { type Appointment, demoAppointments } from "@/lib/store"
 import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
