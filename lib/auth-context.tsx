@@ -1,9 +1,22 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import type { User, Appointment } from "@/lib/store"
-import { demoAppointments } from "@/lib/store"
-import { customerApi, type ApiCustomer } from "./api"
+import type { User } from "@/lib/store"
+import { customerApi, bookingApi, type ApiBooking, type ApiCustomer } from "./api"
+
+export interface Appointment{
+  id: string
+  userId: string
+  userName: string
+  userEmail: string
+  service: string
+  date: string
+  time: string
+  branch: string
+  status: "pending" | "confirmed" | "cancelled" | "completed"
+  notes?: string
+  createdAt: string
+}
 
 interface AuthContextType {
   user: User | null
@@ -17,16 +30,64 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Demo users for testing
-const demoUsers: Array<User & { password: string }> = [
-  { id: "user-1", email: "john@example.com", name: "John Smith", role: "customer", password: "password" },
-  { id: "admin-1", email: "admin@capitecbank.com", name: "Admin User", role: "admin", password: "admin123" },
-]
+function apiBookingToAppointment(booking: ApiBooking, customerName?: string, customerEmail?: string): Appointment {
+  return {
+    id: booking.id,
+    userId: booking.customerId,
+    userName: customerName || "Unknown",
+    userEmail: customerEmail || "",
+    date: booking.date,
+    time: booking.time,
+    service: booking.service,
+    branch: booking.branch,
+    notes: booking.notes,
+    status: booking.status,
+    createdAt: booking.createdAt || new Date().toISOString().split("T")[0],
+  }
+} 
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [appointments, setAppointments] = useState<Appointment[]>(demoAppointments)
-  const [users, setUsers] = useState(demoUsers)
+  const [appointments, setAppointments] = useState<Appointment[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [customerCache, setCustomerCache] = useState<Map<string, ApiCustomer>>(new Map())
+
+  const fetchAppointments = async () => {
+    debugger
+    try {
+      const { data: bookings, error } = await bookingApi.getAll()
+      if (error || !bookings) {
+        console.error("Failed to fetch bookings:", error)
+        return
+     }
+
+     // Fetch customer details for each booking and cache them
+     const customerIds = [...new Set(bookings.map((b) => b.customerId))]
+     const newCustomerCache = new Map(customerCache)
+
+     for (const customerId of customerIds) {
+        if (!newCustomerCache.has(customerId)) {
+          const { data: customer } = await customerApi.getById(customerId)
+          if (customer) {
+            newCustomerCache.set(customerId, customer)
+          }
+        }
+      }
+      setCustomerCache(newCustomerCache)
+
+      // Map bookings to appointments using cached customer details
+      const mappedAppointments = bookings.map((booking) => {
+        const customer = newCustomerCache.get(booking.customerId)
+        return apiBookingToAppointment(booking, customer?.name, customer?.email)
+      })
+
+      setAppointments(mappedAppointments)
+
+    } catch (err) {
+      console.error("Error fetching appointments:", err)
+
+    }
+  }
 
   // Check for stored session on mount
   useEffect(() => {
@@ -37,17 +98,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 800))
+    debugger
+    try{
+      const { data: customers, error } = await customerApi.getAll()
+      if (error) {
+        return { success: false, error: "Unable to connect to the server" }
+      }
 
-    const foundUser = users.find((u) => u.email === email && u.password === password)
-    if (foundUser) {
-      const { password: _, ...userWithoutPassword } = foundUser
-      setUser(userWithoutPassword)
-      sessionStorage.setItem("capitecbank-user", JSON.stringify(userWithoutPassword))
-      return { success: true }
+      const foundCustomer = customers?.find((c) => c.email === email)
+      if (foundCustomer) {
+        const loggedInUser: User = {
+          id: foundCustomer.id,
+          email: foundCustomer.email,
+          name: foundCustomer.name,
+          role: email.includes("admin") ? "admin" : "customer",
+        }
+        setUser(loggedInUser)
+        sessionStorage.setItem("capitecbank-user", JSON.stringify(loggedInUser))
+        await fetchAppointments()
+        return { success: true }
+      }
+      // Fallbaack to demo users if not found in API
+      if (email === "john@example.com" && password === "password") {
+        const adminUser: User = {
+          id: "test-1",
+          email: "john@example.com",
+          name: "John Smith",
+          role: "customer",
+        }
+        setUser(adminUser)
+        sessionStorage.setItem("capitecbank-user", JSON.stringify(adminUser))
+        await fetchAppointments()
+        return { success: true }
+      }
+
+      return { success: false, error: "Invalid email or password" }
+
+    } catch {
+      return { success: false, error: "Network error" }
     }
-    return { success: false, error: "Invalid email or password" }
   }
 
   const register = async (
