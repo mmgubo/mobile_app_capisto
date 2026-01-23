@@ -35,6 +35,11 @@ export default function DashboardPage() {
     .filter((appt) => appt.status === "completed" || appt.status === "cancelled")
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
+
+  console.log("User Appointments:", userAppointments)
+  console.log("Upcoming Appointments:", upcomingAppointments)
+  console.log("Past Appointments:", pastAppointments) 
+  
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmed":

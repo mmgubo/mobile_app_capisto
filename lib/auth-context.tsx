@@ -18,6 +18,7 @@ export interface Appointment{
 interface AuthContextType {
   user: User | null
   appointments: Appointment[]
+  isLoading: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => void
@@ -245,6 +246,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         appointments,
+        isLoading,
         login,
         register,
         logout,

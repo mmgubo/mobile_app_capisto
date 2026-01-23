@@ -7,23 +7,13 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calendar, Clock, MapPin, FileText, CalendarPlus } from "lucide-react"
+import { Calendar, Clock, MapPin, FileText, CalendarPlus, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { type Appointment, demoAppointments } from "@/lib/store"
 import { useAuth } from "@/lib/auth-context"
 
 export default function AppointmentsPage() {
-  const { user, logout } = useAuth()
-  const [appointments, setAppointments] = useState<Appointment[]>([])
-
-  useEffect(() => {
-    const stored = localStorage.getItem("appointments")
-    if (stored) {
-      setAppointments(JSON.parse(stored))
-    } else {
-      setAppointments(demoAppointments)
-    }
-  }, [])
+  const { user, logout, appointments, isLoading } = useAuth()
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -41,6 +31,7 @@ export default function AppointmentsPage() {
       return aptDate < today || apt.status === "completed"
     })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
 
   const getStatusColor = (status: Appointment["status"]) => {
     switch (status) {
@@ -67,28 +58,28 @@ export default function AppointmentsPage() {
     })
   }
 
-  const AppointmentCard = ({ appointment, isPast = false }: { appointment: Appointment; isPast?: boolean }) => (
+  const AppointmentCard = ({ appointment, isPast = false }: { appointment: Partial<Appointment>; isPast?: boolean }) => (
     <Card className={`transition-shadow hover:shadow-md ${isPast ? "opacity-80" : ""}`}>
       <CardContent className="p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex-1 space-y-3">
             <div className="flex items-center gap-3">
-              <h3 className="text-lg font-semibold text-foreground">{appointment.service}</h3>
-              <Badge className={`${getStatusColor(appointment.status)} capitalize`}>{appointment.status}</Badge>
+              <h3 className="text-lg font-semibold text-foreground">{appointment.service as string}</h3>
+              <Badge className={`${getStatusColor(appointment.status as Appointment["status"])} capitalize`}>{appointment.status as string}</Badge>
             </div>
 
             <div className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2 lg:grid-cols-3">
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-primary" />
-                <span>{formatDate(appointment.date)}</span>
+                <span>{formatDate(appointment.date as string)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-primary" />
-                <span>{appointment.time}</span>
+                <span>{appointment.time as string}</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-primary" />
-                <span>{appointment.branch}</span>
+                <span>{appointment.branch as string}</span>
               </div>
             </div>
 
@@ -129,6 +120,20 @@ export default function AppointmentsPage() {
       )}
     </div>
   )
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <Header user={user} onLogout={logout} />
+
+        <main className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2 text-muted-foreground">Loading appointments...</span>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
