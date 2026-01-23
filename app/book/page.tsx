@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { use, useState } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,7 @@ import { ContactForm } from "@/components/booking/contact-form"
 import { BookingSummary } from "@/components/booking/booking-summary"
 import { BookingConfirmation } from "@/components/booking/booking-confirmation"
 import { ArrowLeft, ArrowRight } from "lucide-react"
+import { useAuth } from "@/lib/auth-context"
 
 const steps = [
   { id: 1, name: "Service" },
@@ -22,6 +23,7 @@ const steps = [
 ]
 
 export default function BookingPage() {
+  const { user, logout, addAppointment } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedService, setSelectedService] = useState<string | null>(null)
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null)
@@ -66,18 +68,33 @@ export default function BookingPage() {
 
   const handleConfirm = async () => {
     setIsSubmitting(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    const id = `SB-${Date.now().toString(36).toUpperCase()}`
-    setConfirmationId(id)
-    setIsConfirmed(true)
+
+    const result = await addAppointment({
+      userId: user?.id ?? "",
+      service: selectedService!,
+      branch: selectedBranch!,
+      date: selectedDate!,
+      time: selectedTime!,
+      status: "pending",
+      notes: formData.notes,
+    })
+
+    if (result.success) {
+      const id = `CB-${Date.now().toString(36).toUpperCase()}`
+      setConfirmationId(id)
+      setIsConfirmed(true)
+    } else {
+      alert(`Failed to book appointment: ${result.error}`)
+    }
+
     setIsSubmitting(false)
+   
   }
 
   if (isConfirmed) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header />
+        <Header user={user} onLogout={logout}  />
         <main className="flex-1 px-4 py-12 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl">
             <BookingConfirmation
@@ -96,7 +113,7 @@ export default function BookingPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      <Header user={user} onLogout={logout } />
       <main className="flex-1 px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl">
           <div className="mb-8 text-center">

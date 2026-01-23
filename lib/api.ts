@@ -21,7 +21,6 @@ export interface ApiBooking {
     branch: string
     notes?: string
     status: "pending" | "confirmed" | "cancelled" | "completed"
-    createdAt: string
 
 }
 
@@ -107,12 +106,39 @@ async function apiSave<T>(endpoint: string, options?: RequestInit): Promise<{dat
     }
 }
 
+// Generic fetch wrapper with error handling
+async function apiAdd<T>(endpoint: string, options?: RequestInit): Promise<{data: string | null, error: string | null}> {
+    try {
+        debugger
+        const response = await fetch(`${API_BASE_URL_BOOKING}${endpoint}`, {
+            headers: { 
+                "Content-Type": "application/json",
+                ...options?.headers,
+            },
+            ...options,
+        })
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}))
+            return { data: null, error: errorData.message || `Error: ${response.status}` }
+        }
+
+        const data = await response.text()
+            console.log(`API Fetch Success [<${endpoint}>]:`, data)
+        return { data, error: null }
+            
+
+    } catch (error) {
+        console.error(`API Fetch Error [<${endpoint}>]:`, error)
+        return { data: null, error: error instanceof Error? error.message : 'Network error'}
+    }
+}
+
 // Cusotomer Endpoints
 export const customerApi = {
     getAll: () => apiFetch<ApiCustomer[]>("/getAllCustomers"), 
     getById: (id: string) => apiFetch<ApiCustomer>(`/getCustomer/${id}`),
     create: (data: Omit<ApiCustomer, "id">) => 
-        apiSave<ApiCustomer>("/registerCustomer", {
+        apiAdd<ApiCustomer>("/registerCustomer", {
             method: "POST",
             body: JSON.stringify(data),
         }),
@@ -132,7 +158,7 @@ export const bookingApi = {
     getAll: () => apiGet<ApiBooking[]>("/findAllBookings"),
     getById: (id: string) => apiFetch<ApiBooking>(`/getBooking/${id}`),
     create: (data: Omit<ApiBooking, "id">) => 
-        apiSave<ApiBooking>("/createBooking", {
+        apiAdd<ApiBooking>("/createBooking", {
             method: "POST",
             body: JSON.stringify(data),
         }),

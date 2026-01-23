@@ -7,15 +7,12 @@ import { customerApi, bookingApi, type ApiBooking, type ApiCustomer } from "./ap
 export interface Appointment{
   id: string
   userId: string
-  userName: string
-  userEmail: string
   service: string
   date: string
   time: string
   branch: string
   status: "pending" | "confirmed" | "cancelled" | "completed"
   notes?: string
-  createdAt: string
 }
 
 interface AuthContextType {
@@ -24,25 +21,23 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => void
-  addAppointment: (appointment: Omit<Appointment, "id" | "createdAt">) => void
-  updateAppointmentStatus: (appointmentId: string, status: Appointment["status"]) => void
+  addAppointment: (appointment: Omit<Appointment, "id" | "createdAt">) => Promise<{ success: boolean; error?: string }>
+  updateAppointmentStatus: (appointmentId: string, status: Appointment["status"]) => Promise<{ success: boolean; error?: string }>
+  refreshAppointments: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-function apiBookingToAppointment(booking: ApiBooking, customerName?: string, customerEmail?: string): Appointment {
+function apiBookingToAppointment(booking: ApiBooking): Appointment {
   return {
     id: booking.id,
     userId: booking.customerId,
-    userName: customerName || "Unknown",
-    userEmail: customerEmail || "",
     date: booking.date,
     time: booking.time,
     service: booking.service,
     branch: booking.branch,
     notes: booking.notes,
-    status: booking.status,
-    createdAt: booking.createdAt || new Date().toISOString().split("T")[0],
+    status: booking.status
   }
 } 
 
@@ -78,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Map bookings to appointments using cached customer details
       const mappedAppointments = bookings.map((booking) => {
         const customer = newCustomerCache.get(booking.customerId)
-        return apiBookingToAppointment(booking, customer?.name, customer?.email)
+        return apiBookingToAppointment(booking)
       })
 
       setAppointments(mappedAppointments)
@@ -91,10 +86,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Check for stored session on mount
   useEffect(() => {
-    const storedUser = sessionStorage.getItem("capitecbank-user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
+    const init = async () => {
+      const storedUser = sessionStorage.getItem("capitecbank-user")
+      if (storedUser) {
+        setUser(JSON.parse(storedUser))
+      }
+      await fetchAppointments()
+      setIsLoading(false)
     }
+    init()
   }, [])
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
@@ -180,22 +180,80 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionStorage.removeItem("capitecbank-user")
   }
 
-  const addAppointment = (appointment: Omit<Appointment, "id" | "createdAt">) => {
-    const newAppointment: Appointment = {
-      ...appointment,
-      id: `appt-${Date.now()}`,
-      createdAt: new Date().toISOString().split("T")[0],
+  const addAppointment = async (appointment: Omit<Appointment, "id">,
+  ): Promise<{ success: boolean; error?: string }> => {
+    const storedUser = sessionStorage.getItem("capitecbank-user")
+    console.log("Stored User:", storedUser)
+    console.log("Adding Appointment:", appointment)
+    try {
+      debugger
+      const bookingData = {
+        customerId: appointment.userId,
+        service: appointment.service,
+        date: appointment.date,
+        time: appointment.time,
+        branch: appointment.branch,
+        notes: appointment.notes,
+        status: appointment.status
+      }
+
+      const { data: newBooking, error } = await bookingApi.create(bookingData)
+      if (error || !newBooking) {
+        console.error("API error creating appointment:", error)
+        return { success: false, error: error || "Failed to create appointment" }
+      }
+
+      await fetchAppointments()
+      return { success: true }
+
+      // Local fallback if API not used 
+
+      // const newAppointment: Appointment = {
+      //   ...appointment,
+      //   id: `appt-${Date.now()}`,
+      //   createdAt: new Date().toISOString().split("T")[0],
+      // }
+      // setAppointments((prev) => [...prev, newAppointment])
+      // return { success: true }
+    } catch (err) {
+      console.error("Failed to add appointment:", err)
+      return { success: false, error: "Failed to add appointment" }
     }
-    setAppointments([...appointments, newAppointment])
   }
 
-  const updateAppointmentStatus = (appointmentId: string, status: Appointment["status"]) => {
-    setAppointments(appointments.map((appt) => (appt.id === appointmentId ? { ...appt, status } : appt)))
+  const updateAppointmentStatus = async (appointmentId: string, status: Appointment["status"]): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const { error } = await bookingApi.updateStatus(appointmentId, status)
+      if (error) {
+        console.error("API error updating appointment status:", error)
+        return { success: false, error }
+      }
+
+      setAppointments((prev) =>
+        prev.map((a) => (a.id === appointmentId ? { ...a, status } : a)))
+     
+      return { success: true }
+    } catch (err) {
+      console.error("Failed to update appointment status:", err)
+      return { success: false, error: "Failed to update appointment status" }
+    }
+  }
+  const refreshAppointments = async () => {
+    await fetchAppointments()
   }
 
   return (
     <AuthContext.Provider
-      value={{ user, appointments, login, register, logout, addAppointment, updateAppointmentStatus }}
+      value={{
+        user,
+        appointments,
+        login,
+        register,
+        logout,
+        addAppointment,
+        updateAppointmentStatus,
+        refreshAppointments,
+      }}
     >
       {children}
     </AuthContext.Provider>
