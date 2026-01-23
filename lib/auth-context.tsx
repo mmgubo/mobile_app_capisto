@@ -183,8 +183,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const addAppointment = async (appointment: Omit<Appointment, "id">,
   ): Promise<{ success: boolean; error?: string }> => {
     const storedUser = sessionStorage.getItem("capitecbank-user")
-    console.log("Stored User:", storedUser)
-    console.log("Adding Appointment:", appointment)
     try {
       debugger
       const bookingData = {
