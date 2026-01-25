@@ -7,25 +7,63 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calendar, Clock, MapPin, FileText, CalendarPlus, Loader2 } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Calendar, Clock, MapPin, FileText, CalendarPlus, Loader2, Trash2, Pencil } from "lucide-react"
 import Link from "next/link"
 import { type Appointment, demoAppointments } from "@/lib/store"
 import { useAuth } from "@/lib/auth-context"
 
 export default function AppointmentsPage() {
-  const { user, logout, appointments, isLoading } = useAuth()
+  const { user, logout, appointments, isLoading, updateAppointment, deleteAppointment, updateAppointmentStatus } = useAuth()
+
+  const [selectedAppointment, setSelectedAppointment] = useState<Partial<Appointment> | null>(null)
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [updateFormData, setUpdateFormData] = useState({
+    date: "",
+    time: "",
+    branch: "",
+    notes: "",
+  })
+
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
-  const activeAppointments = appointments
+  const userAppointments = user
+    ? appointments.filter((appt) => appt.userId === user.id || user.role === "admin")
+    : []
+
+  const activeAppointments = userAppointments
     .filter((apt) => {
       const aptDate = new Date(apt.date)
       return aptDate >= today && apt.status !== "cancelled" && apt.status !== "completed"
     })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
-  const pastAppointments = appointments
+  const pastAppointments = userAppointments
     .filter((apt) => {
       const aptDate = new Date(apt.date)
       return aptDate < today || apt.status === "completed"
@@ -48,7 +86,8 @@ export default function AppointmentsPage() {
     }
   }
 
-  const formatDate = (dateStr: string) => {
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "Unknown date"
     const date = new Date(dateStr)
     return date.toLocaleDateString("en-US", {
       weekday: "long",
@@ -58,13 +97,51 @@ export default function AppointmentsPage() {
     })
   }
 
+  const handleOpenUpdateDialog = (appointment: Partial<Appointment>) => {
+    setSelectedAppointment(appointment)
+    setUpdateFormData({
+      date: appointment.date ?? "",
+      time: appointment.time ?? "",
+      branch: appointment.branch ?? "",
+      notes: appointment.notes || "",
+    })
+    setIsUpdateDialogOpen(true)
+  }
+
+  const handleOpenDeleteDialog = (appointment: Partial<Appointment>) => {
+    setSelectedAppointment(appointment)
+    setIsDeleteDialogOpen(true)
+  }
+
+  const handleUpdate = async () => {
+    if (!selectedAppointment) return
+    setIsSubmitting(true)
+    const result = await updateAppointment(selectedAppointment.id as string, updateFormData)
+    setIsSubmitting(false)
+    if (result.success) {
+      setIsUpdateDialogOpen(false)
+      setSelectedAppointment(null)
+    }
+  }
+  const handleDelete = async () => {
+    if (!selectedAppointment) return
+    setIsSubmitting(true)
+    const result = await deleteAppointment(selectedAppointment.id as string)
+    setIsSubmitting(false)
+    if (result.success) {
+      setIsDeleteDialogOpen(false)
+      setSelectedAppointment(null)
+    }
+  }
+
+
   const AppointmentCard = ({ appointment, isPast = false }: { appointment: Partial<Appointment>; isPast?: boolean }) => (
     <Card className={`transition-shadow hover:shadow-md ${isPast ? "opacity-80" : ""}`}>
       <CardContent className="p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex-1 space-y-3">
             <div className="flex items-center gap-3">
-              <h3 className="text-lg font-semibold text-foreground">{appointment.service as string}</h3>
+              <h3 className="text-lg font-semibold text-foreground capitalize">{appointment.service as string}</h3>
               <Badge className={`${getStatusColor(appointment.status as Appointment["status"])} capitalize`}>{appointment.status as string}</Badge>
             </div>
 
@@ -77,7 +154,7 @@ export default function AppointmentsPage() {
                 <Clock className="h-4 w-4 text-primary" />
                 <span>{appointment.time as string}</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 capitalize">
                 <MapPin className="h-4 w-4 text-primary" />
                 <span>{appointment.branch as string}</span>
               </div>
@@ -93,11 +170,18 @@ export default function AppointmentsPage() {
 
           {!isPast && appointment.status !== "cancelled" && (
             <div className="flex gap-2 sm:flex-col">
-              <Button variant="outline" size="sm">
-                Reschedule
+              <Button variant="outline" size="sm" onClick={() => handleOpenUpdateDialog(appointment)}>
+                <Pencil className="mr-1 h-3 w-3" />
+                Update
               </Button>
-              <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
-                Cancel
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-destructive hover:text-destructive"
+                onClick={() => handleOpenDeleteDialog(appointment)}
+              >
+                <Trash2 className="mr-1 h-3 w-3" />
+                Delete
               </Button>
             </div>
           )}
@@ -194,6 +278,128 @@ export default function AppointmentsPage() {
       </main>
 
       <Footer />
+
+         {/* Update Dialog */}
+      <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
+        <DialogContent className="sm:max-w-106.25">
+          <DialogHeader>
+            <DialogTitle>Update Appointment</DialogTitle>
+            <DialogDescription>
+              Make changes to your appointment. Click save when you&apos;re done.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="date">Date</Label>
+              <Input
+                id="date"
+                type="date"
+                value={updateFormData.date}
+                onChange={(e) => setUpdateFormData({ ...updateFormData, date: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="time">Time</Label>
+              <Select
+                value={updateFormData.time}
+                onValueChange={(value) => setUpdateFormData({ ...updateFormData, time: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select time" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="09:00">09:00 AM</SelectItem>
+                  <SelectItem value="09:30">09:30 AM</SelectItem>
+                  <SelectItem value="10:00">10:00 AM</SelectItem>
+                  <SelectItem value="10:30">10:30 AM</SelectItem>
+                  <SelectItem value="11:00">11:00 AM</SelectItem>
+                  <SelectItem value="11:30">11:30 AM</SelectItem>
+                  <SelectItem value="12:00">12:00 PM</SelectItem>
+                  <SelectItem value="14:00">02:00 PM</SelectItem>
+                  <SelectItem value="14:30">02:30 PM</SelectItem>
+                  <SelectItem value="15:00">03:00 PM</SelectItem>
+                  <SelectItem value="15:30">03:30 PM</SelectItem>
+                  <SelectItem value="16:00">04:00 PM</SelectItem>
+                  <SelectItem value="16:30">04:30 PM</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="branch">Branch</Label>
+              <Select
+                value={updateFormData.branch}
+                onValueChange={(value) => setUpdateFormData({ ...updateFormData, branch: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select branch" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Downtown">Downtown Branch</SelectItem>
+                  <SelectItem value="Uptown">Uptown Branch</SelectItem>
+                  <SelectItem value="Midtown">Midtown Branch</SelectItem>
+                  <SelectItem value="Main Branch">Main Branch</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                value={updateFormData.notes}
+                onChange={(e) => setUpdateFormData({ ...updateFormData, notes: e.target.value })}
+                placeholder="Add any additional notes..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsUpdateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdate} disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save changes"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+       {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your appointment
+              {selectedAppointment && (
+                <span className="font-medium"> for {selectedAppointment.service} on {formatDate(selectedAppointment.date)}</span>
+              )}.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isSubmitting}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

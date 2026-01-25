@@ -35,10 +35,6 @@ export default function DashboardPage() {
     .filter((appt) => appt.status === "completed" || appt.status === "cancelled")
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
-
-  console.log("User Appointments:", userAppointments)
-  console.log("Upcoming Appointments:", upcomingAppointments)
-  console.log("Past Appointments:", pastAppointments) 
   
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -135,7 +131,7 @@ export default function DashboardPage() {
                           <FileText className="h-6 w-6 text-primary" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-foreground">{appointment.service}</h3>
+                          <h3 className="font-semibold text-foreground capitalize">{appointment.service}</h3>
                           <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3.5 w-3.5" />
@@ -145,14 +141,14 @@ export default function DashboardPage() {
                               <Clock className="h-3.5 w-3.5" />
                               {appointment.time}
                             </span>
-                            <span className="flex items-center gap-1">
+                            <span className="flex items-center gap-1 capitalize">
                               <MapPin className="h-3.5 w-3.5" />
                               {appointment.branch}
                             </span>
                           </div>
                         </div>
                       </div>
-                      <Badge className={getStatusColor(appointment.status)}>{appointment.status}</Badge>
+                      <Badge className={`capitalize ${getStatusColor(appointment.status)}`}>{appointment.status}</Badge>
                     </CardContent>
                   </Card>
                 ))}
@@ -172,9 +168,9 @@ export default function DashboardPage() {
                           <FileText className="h-6 w-6 text-muted-foreground" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-foreground">{appointment.service}</h3>
+                          <h3 className="font-semibold text-foreground capitalize">{appointment.service}</h3>
                           <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-1">
+                            <span className="flex items-center gap-1 capitalize">
                               <Calendar className="h-3.5 w-3.5" />
                               {formatDate(appointment.date)}
                             </span>

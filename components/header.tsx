@@ -12,38 +12,34 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Menu, User, LogOut, Calendar, Settings, CalendarClock, Clock, CheckCircle2 } from "lucide-react"
-import { type Appointment, demoAppointments } from "@/lib/store"
+import { demoAppointments } from "@/lib/store"
 import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
+import { useAuth, type Appointment} from "@/lib/auth-context"
 
 interface HeaderProps {
-  user?: { name: string; email: string; role: "customer" | "admin" } | null
+  user?: { id: string; name: string; email: string; role: "customer" | "admin" } | null
   onLogout?: () => void
 }
 
 export function Header({ user, onLogout }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [appointments, setAppointments] = useState<Appointment[]>([])
+  const { appointments } = useAuth()
 
-   useEffect(() => {
-        // Load appointments from localStorage or use demo data
-        const stored = localStorage.getItem("appointments")
-        if (stored) {
-        setAppointments(JSON.parse(stored))
-        } else {
-        setAppointments(demoAppointments)
-        }
-    }, [])
 
-    const today = new Date()
+  const today = new Date()
   today.setHours(0, 0, 0, 0)
 
-  const activeAppointments = appointments.filter((apt) => {
+  const userAppointments = user
+    ? appointments.filter((appt) => appt.userId === user.id || user.role === "admin")
+    : []
+
+  const activeAppointments = userAppointments.filter((apt) => {
     const aptDate = new Date(apt.date)
     return aptDate >= today && apt.status !== "cancelled" && apt.status !== "completed"
   })
 
-  const pastAppointments = appointments.filter((apt) => {
+  const pastAppointments = userAppointments.filter((apt) => {
     const aptDate = new Date(apt.date)
     return aptDate < today || apt.status === "completed"
   })
@@ -113,7 +109,7 @@ export function Header({ user, onLogout }: HeaderProps) {
                 activeAppointments.slice(0, 3).map((apt) => (
                   <DropdownMenuItem key={apt.id} asChild>
                     <Link href="/appointments" className="cursor-pointer flex-col items-start gap-1 py-2">
-                      <div className="flex w-full items-center justify-between">
+                      <div className="flex w-full items-center justify-between capitalize">
                         <span className="font-medium">{apt.service}</span>
                         <Badge className={`text-xs ${getStatusColor(apt.status)}`}>{apt.status}</Badge>
                       </div>
@@ -142,7 +138,7 @@ export function Header({ user, onLogout }: HeaderProps) {
                 pastAppointments.slice(0, 2).map((apt) => (
                   <DropdownMenuItem key={apt.id} asChild>
                     <Link href="/appointments" className="cursor-pointer flex-col items-start gap-1 py-2 opacity-70">
-                      <div className="flex w-full items-center justify-between">
+                      <div className="flex w-full items-center justify-between capitalize">
                         <span className="font-medium">{apt.service}</span>
                         <Badge className={`text-xs ${getStatusColor(apt.status)}`}>{apt.status}</Badge>
                       </div>

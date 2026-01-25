@@ -23,7 +23,12 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => void
   addAppointment: (appointment: Omit<Appointment, "id" | "createdAt">) => Promise<{ success: boolean; error?: string }>
+  updateAppointment: (
+    appointmentId: string,
+    data: Partial<Omit<Appointment, "id">>,
+  ) => Promise<{ success: boolean; error?: string }>
   updateAppointmentStatus: (appointmentId: string, status: Appointment["status"]) => Promise<{ success: boolean; error?: string }>
+  deleteAppointment: (appointmentId: string) => Promise<{ success: boolean; error?: string }>
   refreshAppointments: () => Promise<void>
 }
 
@@ -88,9 +93,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Check for stored session on mount
   useEffect(() => {
     const init = async () => {
-      const storedUser = sessionStorage.getItem("capitecbank-user")
-      if (storedUser) {
-        setUser(JSON.parse(storedUser))
+      if (typeof window !== "undefined") {
+        const storedUser = sessionStorage.getItem("capitecbank-user")
+        if (storedUser) {
+          setUser(JSON.parse(storedUser))
+        }
       }
       await fetchAppointments()
       setIsLoading(false)
@@ -115,7 +122,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: email.includes("admin") ? "admin" : "customer",
         }
         setUser(loggedInUser)
-        sessionStorage.setItem("capitecbank-user", JSON.stringify(loggedInUser))
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("capitecbank-user", JSON.stringify(loggedInUser))
+        }
         await fetchAppointments()
         return { success: true }
       }
@@ -128,7 +137,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: "customer",
         }
         setUser(adminUser)
-        sessionStorage.setItem("capitecbank-user", JSON.stringify(adminUser))
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("capitecbank-user", JSON.stringify(adminUser))
+        }
         await fetchAppointments()
         return { success: true }
       }
@@ -169,8 +180,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role: "customer",
       }
       setUser(loggedInUser)
-      sessionStorage.setItem("capitecbank-user", JSON.stringify(loggedInUser))
-      return { success: true  }
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("capitecbank-user", JSON.stringify(loggedInUser))
+      }
+      return { success: true }
     } catch {
       return { success: false, error: "Network error" }
     }
@@ -178,12 +191,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null)
-    sessionStorage.removeItem("capitecbank-user")
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("capitecbank-user")
+    }
   }
 
-  const addAppointment = async (appointment: Omit<Appointment, "id">,
+  const addAppointment = async (appointment: Omit<Appointment, "id" | "createdAt">,
   ): Promise<{ success: boolean; error?: string }> => {
-    const storedUser = sessionStorage.getItem("capitecbank-user")
     try {
       debugger
       const bookingData = {
@@ -204,19 +218,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       await fetchAppointments()
       return { success: true }
-
-      // Local fallback if API not used 
-
-      // const newAppointment: Appointment = {
-      //   ...appointment,
-      //   id: `appt-${Date.now()}`,
-      //   createdAt: new Date().toISOString().split("T")[0],
-      // }
-      // setAppointments((prev) => [...prev, newAppointment])
-      // return { success: true }
     } catch (err) {
       console.error("Failed to add appointment:", err)
       return { success: false, error: "Failed to add appointment" }
+    }
+  }
+
+  const updateAppointment = async (
+    appointmentId: string,
+    data: Partial<Omit<Appointment, "id">>,
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      debugger
+      const { data: updatedBooking, error } = await bookingApi.update(appointmentId, data as any)
+      if (error) {
+        console.error("API error updating appointment:", error)
+        return { success: false, error }
+      }
+
+      // refresh local appointments from API to keep in sync
+      await fetchAppointments()
+      return { success: true }
+    } catch (err) {
+      console.error("Failed to update appointment:", err)
+      return { success: false, error: "Failed to update appointment" }
+    }
+  }
+
+  const deleteAppointment = async (appointmentId: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      debugger
+      const { error } = await bookingApi.delete(appointmentId)
+      if (error) {
+        console.error("API error deleting appointment:", error)
+        return { success: false, error }
+      }
+
+      setAppointments((prev) => prev.filter((a) => a.id !== appointmentId))
+      return { success: true }
+    } catch (err) {
+      console.error("Failed to delete appointment:", err)
+      return { success: false, error: "Failed to delete appointment" }
     }
   }
 
@@ -251,7 +293,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         addAppointment,
+        updateAppointment,
         updateAppointmentStatus,
+        deleteAppointment,
         refreshAppointments,
       }}
     >

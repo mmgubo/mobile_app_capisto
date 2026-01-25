@@ -77,14 +77,14 @@ export const timeSlots: TimeSlot[] = [
   { time: "10:30 AM", available: true },
   { time: "11:00 AM", available: true },
   { time: "11:30 AM", available: true },
-  { time: "1:00 PM", available: true },
-  { time: "1:30 PM", available: true },
-  { time: "2:00 PM", available: true },
-  { time: "2:30 PM", available: true },
-  { time: "3:00 PM", available: true },
-  { time: "3:30 PM", available: true },
-  { time: "4:00 PM", available: true },
-  { time: "4:30 PM", available: true },
+  { time: "13:00 PM", available: true },
+  { time: "13:30 PM", available: true },
+  { time: "14:00 PM", available: true },
+  { time: "14:30 PM", available: true },
+  { time: "15:00 PM", available: true },
+  { time: "15:30 PM", available: true },
+  { time: "16:00 PM", available: true },
+  { time: "16:30 PM", available: true },
 ]
 
 // Demo data for appointments

@@ -138,7 +138,7 @@ export const customerApi = {
     getAll: () => apiFetch<ApiCustomer[]>("/getAllCustomers"), 
     getById: (id: string) => apiFetch<ApiCustomer>(`/getCustomer/${id}`),
     create: (data: Omit<ApiCustomer, "id">) => 
-        apiAdd<ApiCustomer>("/registerCustomer", {
+        apiSave<ApiCustomer>("/registerCustomer", {
             method: "POST",
             body: JSON.stringify(data),
         }),
@@ -156,24 +156,24 @@ export const customerApi = {
 // Booking Endpoints
 export const bookingApi = {
     getAll: () => apiGet<ApiBooking[]>("/findAllBookings"),
-    getById: (id: string) => apiFetch<ApiBooking>(`/getBooking/${id}`),
+    getById: (id: string) => apiGet<ApiBooking>(`/getBooking/${id}`),
     create: (data: Omit<ApiBooking, "id">) => 
         apiAdd<ApiBooking>("/createBooking", {
             method: "POST",
             body: JSON.stringify(data),
         }),
     update: (id: string, data: Partial<ApiBooking>) => 
-        apiFetch<ApiBooking>(`/updateBooking/${id}`, {
+        apiAdd<ApiBooking>(`/updateBooking/${id}`, {
             method: "PUT",
             body: JSON.stringify(data),
         }),
     updateStatus: (id: string, status: ApiBooking["status"]) => 
-        apiFetch<ApiBooking>(`/updateBookingStatus/${id}`, {
+        apiAdd<ApiBooking>(`/updateBookingStatus/${id}`, {
             method: "PATCH",
             body: JSON.stringify({ status }),
         }),
     delete: (id: string) =>
-        apiFetch<{ success: boolean }>(`/deleteBooking/${id}`, {
+        apiAdd<{ success: boolean }>(`/deleteBooking/${id}`, {
             method: "DELETE",
         }),
 }

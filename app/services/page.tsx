@@ -1,9 +1,10 @@
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Wallet, Home, TrendingUp, Briefcase, PiggyBank, HelpCircle, Clock, ArrowRight } from "lucide-react"
+import { Header } from "@/components/header"
+import { HeaderWithAuth } from "@/components/header-with-auth"
 
 const services = [
   {
@@ -82,9 +83,10 @@ const services = [
 ]
 
 export default function ServicesPage() {
+
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      <HeaderWithAuth />
       <main className="flex-1">
         <section className="bg-gradient-to-b from-secondary/50 to-background py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
