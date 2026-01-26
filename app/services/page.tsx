@@ -2,7 +2,7 @@ import { Footer } from "@/components/footer"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Wallet, Home, TrendingUp, Briefcase, PiggyBank, HelpCircle, Clock, ArrowRight } from "lucide-react"
+import { Wallet, Home, TrendingUp, Briefcase, PiggyBank, HelpCircle, Clock, ArrowRight, Save, CardSim, ShieldCheck, CreditCard } from "lucide-react"
 import { Header } from "@/components/header"
 import { HeaderWithAuth } from "@/components/header-with-auth"
 
@@ -11,43 +11,43 @@ const services = [
     icon: Wallet,
     title: "Transact",
     description:
-      "Open a new checking, savings, or business account with personalized guidance from our banking specialists.",
+      "Go cashless and find a better way to bank. Simply use our app, pay with your card or tap your phone or watch.",
     duration: "10 min",
     details: [
-      "Personal checking and savings accounts",
-      "Business and commercial accounts",
-      "Student and youth accounts",
-      "Certificate of Deposits (CDs)",
+      "Make a payment",
+      "Get paid",
+      "Buy on our app",
+      "Manage your money",
     ],
   },
   {
-    icon: Home,
+    icon: Save,
     title: "Save",
-    description: "Discuss mortgage, auto, or personal loan options tailored to your specific financial situation.",
+    description: "Open up to 10 savings plans on our app and even invest in shares. You can name your plans to match your goals.",
     duration: "15 min",
     details: [
-      "Home mortgages and refinancing",
-      "Auto loans and leasing",
-      "Personal loans and lines of credit",
-      "Home equity loans (HELOC)",
+      "Main Account",
+      "Notice Deposit",
+      "Access Anytime",
+      "Fixed-Term Savings",
     ],
   },
   {
-    icon: TrendingUp,
+    icon: ShieldCheck,
     title: "Insure",
-    description: "Meet with our certified wealth management advisors for comprehensive portfolio guidance.",
+    description: "Get Funeral Cover up to R100 000, Life Cover for your family's needs after the funeral and affordable Credit Insurance.",
     duration: "15 min",
     details: [
-      "Portfolio analysis and management",
-      "Retirement planning (401k, IRA)",
-      "Estate planning guidance",
-      "Risk assessment and strategy",
+      "Funeral Cover",
+      "Life Cover",
+      "Credit Insurance",
+      "How to submit claims",
     ],
   },
   {
     icon: Briefcase,
     title: "Business Enquiry",
-    description: "Commercial banking solutions designed to help your business grow and succeed.",
+    description: "We're empowering all businesses, big or small, to turn their bold ideas into real opportunies.",
     duration: "20 min",
     details: [
       "Business account setup",
@@ -57,27 +57,27 @@ const services = [
     ],
   },
   {
-    icon: PiggyBank,
+    icon: CreditCard,
     title: "Credit",
-    description: "Comprehensive financial planning sessions to help you achieve your long-term goals.",
+    description: "Choose from personalised credit solutions that suit your needs. Whether you need a loan now or revolving credit for later - we've got it all.",
     duration: "15 min",
     details: [
-      "Budgeting and savings strategies",
-      "Debt management",
-      "Education funding planning",
-      "Insurance needs analysis",
+      "Access Facility",
+      "Personal Loan",
+      "Credit Card",
+      "Home Loan",
     ],
   },
   {
-    icon: HelpCircle,
+    icon: CardSim,
     title: "Connect",
-    description: "Have questions about your accounts or our banking services? Our team is here to help.",
+    description: "Freedom to connect your way. No contracts or hidden fees, just affordable prepaid prices that don't change from day to day.",
     duration: "10 min",
     details: [
-      "Account questions and support",
-      "Online banking assistance",
-      "Card services and support",
-      "General banking inquiries",
+      "See your bundles",
+      "Get a Connect advance",
+      "Get a connect SIM",
+      "Buy a phone for less",
     ],
   },
 ]

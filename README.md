@@ -1,13 +1,31 @@
-To run this web app project you will need to run it through a docker image.
+## Overview
+### A React web application that allows clients to book appointments online for visiting the banking branch.
 
-Please run the folowing commands after cloning the project.
+## Tech Stack
+- **Framework:** Next JS
+- **Language:** React
+- **Styling:** Tailwind CSS
 
-1. docker build -t mobile-app-capisto .
+## Prerequisites
+- Node 25
+- Tailwindcss 4.x
 
-2. docker run -p 3000:3000 mobile-app-capisto
+## Getting Started
+### 1. Clone the Repository
+    git clone https://github.com/mmgubo/mobile_app_capisto.git
+### 2. Build and Run
+- **To run this web app project you will need to run it through a docker image.**
 
-3. Access http://localhost:3000 and you will see the running app.
+- **Please run the folowing commands after cloning the project:**
+### 1. docker build -t mobile-app-capisto .
 
-4. After the project has finished downloading run npm install.
+### 2. docker run -p 3000:3000 mobile-app-capisto
 
-5. npm run dev to run the project.
+- **Access http://localhost:3000 and you will see the running app.**
+
+- **After the project has finished downloading** 
+### 1. run npm install
+### 2. npm run dev
+
+- **If you are not running Node version 25, change this command(FROM node:25) from Dockerfile to point to the Node version your machine is running**
+

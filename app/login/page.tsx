@@ -92,9 +92,8 @@ export default function LoginPage() {
             </div>
 
             <div className="rounded-lg bg-secondary/50 p-3 text-sm text-muted-foreground">
-              <p className="font-medium">Demo Accounts:</p>
+              <p className="font-medium">Demo Account:</p>
               <p>Customer: john@example.com / password</p>
-              <p>Admin: admin@capitecbank.com / admin123</p>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">

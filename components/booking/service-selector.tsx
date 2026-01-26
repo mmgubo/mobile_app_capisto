@@ -5,15 +5,15 @@ import type React from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { services } from "@/lib/store"
-import { Wallet, Home, TrendingUp, Briefcase, PiggyBank, HelpCircle, Check } from "lucide-react"
+import { Wallet, Briefcase, HelpCircle, Check, Save, ShieldCheck, CreditCard, CardSim } from "lucide-react"
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   "transact": Wallet,
-  "save": Home,
-  "insure": TrendingUp,
+  "save": Save,
+  "insure": ShieldCheck,
   "business-enquiry": Briefcase,
-  "credit": PiggyBank,
-  "connect": HelpCircle,
+  "credit": CreditCard,
+  "connect": CardSim,
 }
 
 interface ServiceSelectorProps {

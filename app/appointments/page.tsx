@@ -135,6 +135,25 @@ export default function AppointmentsPage() {
   }
 
 
+  const isTimeSlotDisabled = (timeValue: string) => {
+    const selectedDateObj = new Date(updateFormData.date)
+    const now = new Date()
+    
+    // Only check time if the selected date is today
+    if (
+      selectedDateObj.getFullYear() === now.getFullYear() &&
+      selectedDateObj.getMonth() === now.getMonth() &&
+      selectedDateObj.getDate() === now.getDate()
+    ) {
+      const [hours, minutes] = timeValue.split(":").map(Number)
+      const slotTime = new Date()
+      slotTime.setHours(hours, minutes, 0, 0)
+      return slotTime <= now
+    }
+    return false
+  }
+
+
   const AppointmentCard = ({ appointment, isPast = false }: { appointment: Partial<Appointment>; isPast?: boolean }) => (
     <Card className={`transition-shadow hover:shadow-md ${isPast ? "opacity-80" : ""}`}>
       <CardContent className="p-5">
@@ -308,19 +327,19 @@ export default function AppointmentsPage() {
                   <SelectValue placeholder="Select time" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="09:00">09:00 AM</SelectItem>
-                  <SelectItem value="09:30">09:30 AM</SelectItem>
-                  <SelectItem value="10:00">10:00 AM</SelectItem>
-                  <SelectItem value="10:30">10:30 AM</SelectItem>
-                  <SelectItem value="11:00">11:00 AM</SelectItem>
-                  <SelectItem value="11:30">11:30 AM</SelectItem>
-                  <SelectItem value="12:00">12:00 PM</SelectItem>
-                  <SelectItem value="14:00">02:00 PM</SelectItem>
-                  <SelectItem value="14:30">02:30 PM</SelectItem>
-                  <SelectItem value="15:00">03:00 PM</SelectItem>
-                  <SelectItem value="15:30">03:30 PM</SelectItem>
-                  <SelectItem value="16:00">04:00 PM</SelectItem>
-                  <SelectItem value="16:30">04:30 PM</SelectItem>
+                  <SelectItem value="09:00" disabled={isTimeSlotDisabled("09:00")}>09:00 AM</SelectItem>
+                  <SelectItem value="09:30" disabled={isTimeSlotDisabled("09:30")}>09:30 AM</SelectItem>
+                  <SelectItem value="10:00" disabled={isTimeSlotDisabled("10:00")}>10:00 AM</SelectItem>
+                  <SelectItem value="10:30" disabled={isTimeSlotDisabled("10:30")}>10:30 AM</SelectItem>
+                  <SelectItem value="11:00" disabled={isTimeSlotDisabled("11:00")}>11:00 AM</SelectItem>
+                  <SelectItem value="11:30" disabled={isTimeSlotDisabled("11:30")}>11:30 AM</SelectItem>
+                  <SelectItem value="12:00" disabled={isTimeSlotDisabled("12:00")}>12:00 PM</SelectItem>
+                  <SelectItem value="14:00" disabled={isTimeSlotDisabled("14:00")}>02:00 PM</SelectItem>
+                  <SelectItem value="14:30" disabled={isTimeSlotDisabled("14:30")}>02:30 PM</SelectItem>
+                  <SelectItem value="15:00" disabled={isTimeSlotDisabled("15:00")}>03:00 PM</SelectItem>
+                  <SelectItem value="15:30" disabled={isTimeSlotDisabled("15:30")}>03:30 PM</SelectItem>
+                  <SelectItem value="16:00" disabled={isTimeSlotDisabled("16:00")}>04:00 PM</SelectItem>
+                  <SelectItem value="16:30" disabled={isTimeSlotDisabled("16:30")}>04:30 PM</SelectItem>
                 </SelectContent>
               </Select>
             </div>

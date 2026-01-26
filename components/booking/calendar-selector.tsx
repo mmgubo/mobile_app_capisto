@@ -139,15 +139,60 @@ export function CalendarSelector({ selectedDate, selectedTime, onSelectDate, onS
                 {timeSlots.map((slot) => {
                   const isSelected = selectedTime === slot.time
 
+                   // Check if the time slot has passed for today's date
+                  const isTimeSlotPassed = () => {
+                    const now = new Date()
+                    const [year, month, day] = selectedDate.split("-").map(Number)
+                    
+                    // Check if selected date is today
+                    const isToday = 
+                      year === now.getFullYear() &&
+                      month === now.getMonth() + 1 &&
+                      day === now.getDate()
+                    
+                    if (!isToday) {
+                      return false
+                    }
+                    
+                    // Parse time in "9:00 AM" or "1:30 PM" format
+                    const timeStr = slot.time.toUpperCase()
+                    const isPM = timeStr.includes("PM")
+                    const timePart = timeStr.replace(/\s*(AM|PM)/i, "").trim()
+                    const [hoursStr, minutesStr] = timePart.split(":")
+                    let hours = parseInt(hoursStr, 10)
+                    const minutes = parseInt(minutesStr, 10)
+                    
+                    // Convert to 24-hour format
+                    if (isPM && hours !== 12) {
+                      hours += 12
+                    } else if (!isPM && hours === 12) {
+                      hours = 0
+                    }
+                    
+                    const currentHours = now.getHours()
+                    const currentMinutes = now.getMinutes()
+
+                    // Compare hours first, then minutes
+                    if (hours < currentHours) {
+                      return true
+                    } else if (hours === currentHours && minutes <= currentMinutes) {
+                      return true
+                    }
+                    return false
+                  }
+                  
+                  const isPast = isTimeSlotPassed()
+
                   return (
                     <Button
                       key={slot.time}
                       variant="outline"
-                      disabled={!slot.available}
+                      disabled={!slot.available || isPast}
                       onClick={() => onSelectTime(slot.time)}
                       className={cn(
                         "justify-between",
                         isSelected && "border-primary bg-primary/10 text-primary hover:bg-primary/20",
+                        isPast && "opacity-50 cursor-not-allowed",
                       )}
                     >
                       {slot.time}

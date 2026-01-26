@@ -1,43 +1,43 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Wallet, Home, TrendingUp, Briefcase, PiggyBank, HelpCircle, ArrowRight } from "lucide-react"
+import { Wallet, Home, TrendingUp, Briefcase, PiggyBank, HelpCircle, ArrowRight, Save, ShieldCheck, CreditCard, CardSim } from "lucide-react"
 
 const services = [
   {
     icon: Wallet,
     title: "Transact",
-    description: "Open a new checking, savings, or business account with personalized guidance.",
+    description: "Go cashless and find a better way to bank. Simply use our app, pay with your card or tap your phone or watch.",
     duration: "10 min",
   },
   {
-    icon: Home,
+    icon: Save,
     title: "Save",
-    description: "Discuss mortgage, auto, or personal loan options tailored to your needs.",
+    description: "Open up to 10 savings plans on our app and even invest in shares. You can name your plans to match your goals.",
     duration: "15 min",
   },
   {
-    icon: TrendingUp,
+    icon: ShieldCheck,
     title: "Insure",
-    description: "Meet with our wealth management advisors for portfolio guidance.",
+    description: "Get Funeral Cover up to R100 000, Life Cover for your family's needs after the funeral and affordable Credit Insurance.",
     duration: "15 min",
   },
   {
     icon: Briefcase,
     title: "Business Enquiry",
-    description: "Commercial banking solutions and business account services.",
+    description: "We're empowering all businesses, big or small, to turn their bold ideas into real opportunies.",
     duration: "20 min",
   },
   {
-    icon: PiggyBank,
+    icon: CreditCard,
     title: "Credit",
-    description: "Comprehensive financial planning for your future goals.",
+    description: "Choose from personalised credit solutions that suit your needs. Whether you need a loan now or revolving credit for later - we've got it all.",
     duration: "15 min",
   },
   {
-    icon: HelpCircle,
+    icon: CardSim,
     title: "Connect",
-    description: "Questions about accounts or banking services? We're here to help.",
+    description: "Freedom to connect your way. No contracts or hidden fees, just affordable prepaid prices that don't change from day to day.",
     duration: "10 min",
   },
 ]
