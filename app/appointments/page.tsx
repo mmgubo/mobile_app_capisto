@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Calendar, Clock, MapPin, FileText, CalendarPlus, Loader2, Trash2, Pencil } from "lucide-react"
 import Link from "next/link"
-import { type Appointment, demoAppointments } from "@/lib/store"
+import { type Appointment, timeSlots, branches} from "@/lib/store"
 import { useAuth } from "@/lib/auth-context"
 
 export default function AppointmentsPage() {
@@ -327,19 +327,15 @@ export default function AppointmentsPage() {
                   <SelectValue placeholder="Select time" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="09:00" disabled={isTimeSlotDisabled("09:00")}>09:00 AM</SelectItem>
-                  <SelectItem value="09:30" disabled={isTimeSlotDisabled("09:30")}>09:30 AM</SelectItem>
-                  <SelectItem value="10:00" disabled={isTimeSlotDisabled("10:00")}>10:00 AM</SelectItem>
-                  <SelectItem value="10:30" disabled={isTimeSlotDisabled("10:30")}>10:30 AM</SelectItem>
-                  <SelectItem value="11:00" disabled={isTimeSlotDisabled("11:00")}>11:00 AM</SelectItem>
-                  <SelectItem value="11:30" disabled={isTimeSlotDisabled("11:30")}>11:30 AM</SelectItem>
-                  <SelectItem value="12:00" disabled={isTimeSlotDisabled("12:00")}>12:00 PM</SelectItem>
-                  <SelectItem value="14:00" disabled={isTimeSlotDisabled("14:00")}>02:00 PM</SelectItem>
-                  <SelectItem value="14:30" disabled={isTimeSlotDisabled("14:30")}>02:30 PM</SelectItem>
-                  <SelectItem value="15:00" disabled={isTimeSlotDisabled("15:00")}>03:00 PM</SelectItem>
-                  <SelectItem value="15:30" disabled={isTimeSlotDisabled("15:30")}>03:30 PM</SelectItem>
-                  <SelectItem value="16:00" disabled={isTimeSlotDisabled("16:00")}>04:00 PM</SelectItem>
-                  <SelectItem value="16:30" disabled={isTimeSlotDisabled("16:30")}>04:30 PM</SelectItem>
+                  {timeSlots.map((slot) => (
+                    <SelectItem 
+                      key={slot.time} 
+                      value={slot.time}
+                      disabled={!slot.available || isTimeSlotDisabled(slot.time)}
+                    >
+                      {slot.time}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -353,10 +349,11 @@ export default function AppointmentsPage() {
                   <SelectValue placeholder="Select branch" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Downtown">Downtown Branch</SelectItem>
-                  <SelectItem value="Uptown">Uptown Branch</SelectItem>
-                  <SelectItem value="Midtown">Midtown Branch</SelectItem>
-                  <SelectItem value="Main Branch">Main Branch</SelectItem>
+                  {branches.map((branch) => (
+                    <SelectItem key={branch.id} value={branch.name}>
+                      {branch.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

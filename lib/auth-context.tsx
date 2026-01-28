@@ -22,6 +22,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => void
+  checkUserExists: (email: string) => Promise<boolean>
   addAppointment: (appointment: Omit<Appointment, "id" | "createdAt">) => Promise<{ success: boolean; error?: string }>
   updateAppointment: (
     appointmentId: string,
@@ -54,7 +55,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [customerCache, setCustomerCache] = useState<Map<string, ApiCustomer>>(new Map())
 
   const fetchAppointments = async () => {
-    debugger
     try {
       const { data: bookings, error } = await bookingApi.getAll()
       if (error || !bookings) {
@@ -93,20 +93,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Check for stored session on mount
   useEffect(() => {
     const init = async () => {
+      let currentUser: User | null = null
       if (typeof window !== "undefined") {
         const storedUser = sessionStorage.getItem("capitecbank-user")
         if (storedUser) {
+          currentUser = JSON.parse(storedUser)
           setUser(JSON.parse(storedUser))
         }
       }
-      await fetchAppointments()
+      if (currentUser) {
+        await fetchAppointments()
+      }       
       setIsLoading(false)
     }
     init()
   }, [])
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    debugger
     try{
       const { data: customers, error } = await customerApi.getAll()
       if (error) {
@@ -156,7 +159,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string,
     password: string,
   ): Promise<{ success: boolean; error?: string }> => {
-    debugger
     try {
       const { data: existingCustomers } = await customerApi.getAll()
       if (existingCustomers?.some((c) => c.email === email)) {
@@ -196,10 +198,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const checkUserExists = async (email: string): Promise<boolean> => {
+    try {
+      // Check for admin email
+      if (email === "admin@securebank.com") {
+        return true
+      }
+
+      const { data: customers, error } = await customerApi.getAll()
+      if (error || !customers) {
+        return false
+      }
+
+      return customers.some((c) => c.email === email)
+    } catch {
+      return false
+    }
+  }
+
   const addAppointment = async (appointment: Omit<Appointment, "id" | "createdAt">,
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      debugger
       const bookingData = {
         customerId: appointment.userId,
         service: appointment.service,
@@ -229,7 +248,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     data: Partial<Omit<Appointment, "id">>,
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      debugger
       const { data: updatedBooking, error } = await bookingApi.update(appointmentId, data as any)
       if (error) {
         console.error("API error updating appointment:", error)
@@ -247,7 +265,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const deleteAppointment = async (appointmentId: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      debugger
       const { error } = await bookingApi.delete(appointmentId)
       if (error) {
         console.error("API error deleting appointment:", error)
@@ -292,6 +309,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
+        checkUserExists,
         addAppointment,
         updateAppointment,
         updateAppointmentStatus,

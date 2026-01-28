@@ -23,7 +23,7 @@ const steps = [
 ]
 
 export default function BookingPage() {
-  const { user, logout, addAppointment } = useAuth()
+  const { user, logout, addAppointment, checkUserExists } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedService, setSelectedService] = useState<string | null>(null)
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null)
@@ -68,6 +68,16 @@ export default function BookingPage() {
 
   const handleConfirm = async () => {
     setIsSubmitting(true)
+
+    // Check if user is registered before confirming booking
+    const userExists = await checkUserExists(formData.email)
+    if (!userExists) {
+      // Redirect to register page with email and return URL
+      const returnUrl = encodeURIComponent("/book")
+      window.location.href = `/register?email=${encodeURIComponent(formData.email)}&name=${encodeURIComponent(formData.name)}&returnUrl=${returnUrl}`
+      setIsSubmitting(false)
+      return
+    }
 
     const result = await addAppointment({
       userId: user?.id ?? "",

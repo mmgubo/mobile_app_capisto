@@ -27,7 +27,6 @@ export interface ApiBooking {
 // Generic fetch wrapper with error handling
 async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<{data: T | null, error: string | null}> {
     try {
-        debugger
         const response = await fetch(`${API_BASE_URL_CUSTOMER}${endpoint}`, {
             headers: { 
                 "Content-Type": "application/json",
@@ -54,7 +53,6 @@ async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<{da
 // Generic fetch wrapper with error handling
 async function apiGet<T>(endpoint: string, options?: RequestInit): Promise<{data: T | null, error: string | null}> {
     try {
-        debugger
         const response = await fetch(`${API_BASE_URL_BOOKING}${endpoint}`, {
             headers: { 
                 "Content-Type": "application/json",
@@ -82,7 +80,6 @@ async function apiGet<T>(endpoint: string, options?: RequestInit): Promise<{data
 // Generic fetch wrapper with error handling
 async function apiSave<T>(endpoint: string, options?: RequestInit): Promise<{data: string | null, error: string | null}> {
     try {
-        debugger
         const response = await fetch(`${API_BASE_URL_CUSTOMER}${endpoint}`, {
             headers: { 
                 "Content-Type": "application/json",
@@ -109,7 +106,6 @@ async function apiSave<T>(endpoint: string, options?: RequestInit): Promise<{dat
 // Generic fetch wrapper with error handling
 async function apiAdd<T>(endpoint: string, options?: RequestInit): Promise<{data: string | null, error: string | null}> {
     try {
-        debugger
         const response = await fetch(`${API_BASE_URL_BOOKING}${endpoint}`, {
             headers: { 
                 "Content-Type": "application/json",
