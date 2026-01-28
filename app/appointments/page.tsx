@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Card, CardContent } from "@/components/ui/card"
@@ -47,7 +47,6 @@ export default function AppointmentsPage() {
     branch: "",
     notes: "",
   })
-
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -342,6 +341,7 @@ export default function AppointmentsPage() {
             <div className="grid gap-2">
               <Label htmlFor="branch">Branch</Label>
               <Select
+                defaultValue={updateFormData.branch}
                 value={updateFormData.branch}
                 onValueChange={(value) => setUpdateFormData({ ...updateFormData, branch: value })}
               >
@@ -350,7 +350,7 @@ export default function AppointmentsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {branches.map((branch) => (
-                    <SelectItem key={branch.id} value={branch.name}>
+                    <SelectItem key={branch.id} value={branch.id}>
                       {branch.name}
                     </SelectItem>
                   ))}

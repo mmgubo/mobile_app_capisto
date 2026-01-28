@@ -40,12 +40,10 @@ async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<{da
         }
    
         const data = await response.json()
-            console.log(`API Fetch Success [<${endpoint}>]:`, data)
         return { data, error: null }
             
 
     } catch (error) {
-        console.error(`API Fetch Error [<${endpoint}>]:`, error)
         return { data: null, error: error instanceof Error? error.message : 'Network error'}
     }
 }
@@ -66,12 +64,10 @@ async function apiGet<T>(endpoint: string, options?: RequestInit): Promise<{data
         }
    
         const data = await response.json()
-            console.log(`API Fetch Success [<${endpoint}>]:`, data)
         return { data, error: null }
             
 
     } catch (error) {
-        console.error(`API Fetch Error [<${endpoint}>]:`, error)
         return { data: null, error: error instanceof Error? error.message : 'Network error'}
     }
 }
@@ -93,12 +89,10 @@ async function apiSave<T>(endpoint: string, options?: RequestInit): Promise<{dat
         }
 
         const data = await response.text()
-            console.log(`API Fetch Success [<${endpoint}>]:`, data)
         return { data, error: null }
             
 
     } catch (error) {
-        console.error(`API Fetch Error [<${endpoint}>]:`, error)
         return { data: null, error: error instanceof Error? error.message : 'Network error'}
     }
 }

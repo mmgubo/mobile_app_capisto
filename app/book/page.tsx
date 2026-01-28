@@ -1,6 +1,6 @@
 "use client"
 
-import { use, useState } from "react"
+import { use, useEffect, useState } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -23,7 +23,7 @@ const steps = [
 ]
 
 export default function BookingPage() {
-  const { user, logout, addAppointment, checkUserExists } = useAuth()
+  const { user, logout, addAppointment } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedService, setSelectedService] = useState<string | null>(null)
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null)
@@ -38,6 +38,13 @@ export default function BookingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isConfirmed, setIsConfirmed] = useState(false)
   const [confirmationId, setConfirmationId] = useState("")
+
+  useEffect(() => {
+    // If it's not loading and user is not logged in, redirect to login
+    if (!user) {
+      window.location.href = "/login?returnUrl=/book"
+    }
+  }, [])
 
   const canProceed = () => {
     switch (currentStep) {
@@ -68,16 +75,6 @@ export default function BookingPage() {
 
   const handleConfirm = async () => {
     setIsSubmitting(true)
-
-    // Check if user is registered before confirming booking
-    const userExists = await checkUserExists(formData.email)
-    if (!userExists) {
-      // Redirect to register page with email and return URL
-      const returnUrl = encodeURIComponent("/book")
-      window.location.href = `/register?email=${encodeURIComponent(formData.email)}&name=${encodeURIComponent(formData.name)}&returnUrl=${returnUrl}`
-      setIsSubmitting(false)
-      return
-    }
 
     const result = await addAppointment({
       userId: user?.id ?? "",

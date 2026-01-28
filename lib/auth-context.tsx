@@ -22,7 +22,6 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => void
-  checkUserExists: (email: string) => Promise<boolean>
   addAppointment: (appointment: Omit<Appointment, "id" | "createdAt">) => Promise<{ success: boolean; error?: string }>
   updateAppointment: (
     appointmentId: string,
@@ -58,7 +57,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { data: bookings, error } = await bookingApi.getAll()
       if (error || !bookings) {
-        console.error("Failed to fetch bookings:", error)
         return
      }
 
@@ -85,7 +83,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAppointments(mappedAppointments)
 
     } catch (err) {
-      console.error("Error fetching appointments:", err)
 
     }
   }
@@ -198,24 +195,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const checkUserExists = async (email: string): Promise<boolean> => {
-    try {
-      // Check for admin email
-      if (email === "admin@securebank.com") {
-        return true
-      }
-
-      const { data: customers, error } = await customerApi.getAll()
-      if (error || !customers) {
-        return false
-      }
-
-      return customers.some((c) => c.email === email)
-    } catch {
-      return false
-    }
-  }
-
   const addAppointment = async (appointment: Omit<Appointment, "id" | "createdAt">,
   ): Promise<{ success: boolean; error?: string }> => {
     try {
@@ -231,14 +210,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const { data: newBooking, error } = await bookingApi.create(bookingData)
       if (error || !newBooking) {
-        console.error("API error creating appointment:", error)
         return { success: false, error: error || "Failed to create appointment" }
       }
 
       await fetchAppointments()
       return { success: true }
     } catch (err) {
-      console.error("Failed to add appointment:", err)
       return { success: false, error: "Failed to add appointment" }
     }
   }
@@ -250,7 +227,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { data: updatedBooking, error } = await bookingApi.update(appointmentId, data as any)
       if (error) {
-        console.error("API error updating appointment:", error)
         return { success: false, error }
       }
 
@@ -258,7 +234,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await fetchAppointments()
       return { success: true }
     } catch (err) {
-      console.error("Failed to update appointment:", err)
       return { success: false, error: "Failed to update appointment" }
     }
   }
@@ -267,14 +242,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { error } = await bookingApi.delete(appointmentId)
       if (error) {
-        console.error("API error deleting appointment:", error)
         return { success: false, error }
       }
 
       setAppointments((prev) => prev.filter((a) => a.id !== appointmentId))
       return { success: true }
     } catch (err) {
-      console.error("Failed to delete appointment:", err)
       return { success: false, error: "Failed to delete appointment" }
     }
   }
@@ -283,7 +256,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { error } = await bookingApi.updateStatus(appointmentId, status)
       if (error) {
-        console.error("API error updating appointment status:", error)
         return { success: false, error }
       }
 
@@ -292,7 +264,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
      
       return { success: true }
     } catch (err) {
-      console.error("Failed to update appointment status:", err)
       return { success: false, error: "Failed to update appointment status" }
     }
   }
@@ -309,7 +280,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
-        checkUserExists,
         addAppointment,
         updateAppointment,
         updateAppointmentStatus,
